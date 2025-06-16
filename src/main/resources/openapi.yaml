@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  description: API para consultar precios aplicables a productos en base a fecha, producto y marca
+  title: Inditex Pricing API
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /prices:
+    get:
+      operationId: getApplicablePrice
+      summary: Obtener el precio aplicable
+      x-accepts: application/json
+      parameters:
+      - example: 2020-06-14T10:00:00
+        explode: true
+        in: query
+        name: consultationDate
+        required: true
+        schema:
+          format: date-time
+          type: string
+        style: form
+        description: "Formato ISO 8601: yyyy-MM-ddTHH:mm:ss"
+      - example: 35455
+        explode: true
+        in: query
+        name: productId
+        required: true
+        schema:
+          type: integer
+        style: form
+      - example: 1
+        explode: true
+        in: query
+        name: brandId
+        required: true
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          description: Precio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        "404":
+          description: Precio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        "400":
+          description: Error en los parámetros de entrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidParametersError'
+components:
+  schemas:
+    PriceResponseDto:
+      type: object
+      description: Precio aplicable a un producto
+      required:
+        - productId
+        - brandId
+        - priceList
+        - startDate
+        - endDate
+        - price
+        - currency
+      properties:
+        productId:
+          type: integer
+          example: 35455
+        brandId:
+          type: integer
+          example: 1
+        priceList:
+          type: integer
+          example: 4
+        startDate:
+          type: string
+          format: date-time
+          example: 2020-06-14T15:00:00
+        endDate:
+          type: string
+          format: date-time
+          example: 2020-12-31T23:59:59
+        price:
+          type: number
+          format: double
+          example: 35.50
+        currency:
+          type: string
+          example: "EUR"
+
+    NotFoundError:
+      type: object
+      description: Respuesta de error
+      properties:
+        error:
+          type: string
+          example: "PRICE_NOT_FOUND"
+        message:
+          type: string
+          example: "No applicable price found"
+        timestamp:
+          type: string
+          format: date-time
+          example: 2025-04-16T11:08:15.098271284
+
+    InvalidParametersError:
+      type: object
+      description: Respuesta de error
+      properties:
+        error:
+          type: string
+          example: "INVALID_PARAMETER"
+        message:
+          type: string
+          example: "Invalid parameters"
+        timestamp:
+          type: string
+          format: date-time
+          example: 2025-04-16T11:08:15.098271284
