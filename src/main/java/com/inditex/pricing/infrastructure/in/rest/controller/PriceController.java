@@ -2,15 +2,14 @@ package com.inditex.pricing.infrastructure.in.rest.controller;
 
 import java.time.LocalDateTime;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.inditex.pricing.domain.exceptions.InvalidInputException;
 import com.inditex.pricing.domain.model.Price;
 import com.inditex.pricing.domain.ports.in.GetApplicablePriceUseCase;
 import com.inditex.pricing.infrastructure.in.openapi.api.PricesApi;
 import com.inditex.pricing.infrastructure.in.rest.dto.PriceResponseDto;
-import com.inditex.pricing.infrastructure.in.rest.exceptions.InvalidParametersException;
 
 /**
  * Adaptador REST encargado de exponer el endpoint de consulta de precios.
@@ -37,21 +36,30 @@ public class PriceController implements PricesApi {
      * @return DTO con los datos del precio aplicable
      */
     @Override
-    public ResponseEntity<PriceResponseDto> getApplicablePrice(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime consultationDate, Integer productId, Integer brandId) {
-    	validateRequestParams(consultationDate, productId, brandId);
-        Price price = getApplicablePriceUseCase.getApplicablePrice(consultationDate, productId, brandId);
+    public ResponseEntity<PriceResponseDto> getApplicablePrice(
+        LocalDateTime consultationDate,
+        Integer productId,
+        Integer brandId
+    ) {
+        validateRequestParams(consultationDate, productId, brandId);
+
+        // Si tu UseCase espera LocalDateTime, se convierte aquí
+        Price price = getApplicablePriceUseCase.getApplicablePrice(
+            consultationDate,
+            productId,
+            brandId
+        );
 
         return ResponseEntity.ok(new PriceResponseDto(price));
     }
-    
-    private void validateRequestParams(LocalDateTime consultationDate, Integer productId, Integer brandId) {
-    	if (consultationDate == null) {
-    	    throw new InvalidParametersException("consultationDate is required");
-    	} else if (productId == null || productId <= 0) {
-    	    throw new InvalidParametersException("productId must be greater than 0");
-    	} else if (brandId == null || brandId <= 0) {
-    	    throw new InvalidParametersException("brandId must be greater than 0");
-    	}
-    }
 
+    private void validateRequestParams(LocalDateTime consultationDate, Integer productId, Integer brandId) {
+        if (consultationDate == null) {
+            throw new InvalidInputException("consultationDate is required");
+        } else if (productId == null || productId <= 0) {
+            throw new InvalidInputException("productId must be greater than 0");
+        } else if (brandId == null || brandId <= 0) {
+            throw new InvalidInputException("brandId must be greater than 0");
+        }
+    }
 }
