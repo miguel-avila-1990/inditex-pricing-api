@@ -1,25 +1,25 @@
-package com.inditex.pricing.infrastructure.out.persistance;
+package com.inditex.pricing.infrastructure.out.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import com.inditex.pricing.domain.model.Brand;
-import com.inditex.pricing.domain.model.Product;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.inditex.pricing.infrastructure.out.persistence.adapter.PriceRepositoryAdapter;
 import com.inditex.pricing.infrastructure.out.persistence.entity.BrandEntity;
 import com.inditex.pricing.infrastructure.out.persistence.entity.PriceEntity;
 import com.inditex.pricing.infrastructure.out.persistence.entity.ProductEntity;
 import com.inditex.pricing.infrastructure.out.persistence.repository.JpaPriceRepository;
-import com.inditex.pricing.infrastructure.out.persistence.repository.PriceRepositoryAdapter;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.PageRequest;
 
-public class PriceRepositoryAdapterTest {
+class PriceRepositoryAdapterTest {
 
     private JpaPriceRepository jpaPriceRepository;
     private PriceRepositoryAdapter adapter;
@@ -31,13 +31,13 @@ public class PriceRepositoryAdapterTest {
     }
 
     @Test
+    @DisplayName("Should map and return price from Jpa repository")
     void shouldReturnMappedPriceFromJpaRepository() {
-        // Datos de prueba
+        // Arrange
         Integer productId = 35455;
         Integer brandId = 1;
         LocalDateTime date = LocalDateTime.of(2020, 6, 14, 16, 0);
 
-        // Entities
         BrandEntity brandEntity = new BrandEntity();
         brandEntity.setId(brandId);
         brandEntity.setName("ZARA");
@@ -63,17 +63,17 @@ public class PriceRepositoryAdapterTest {
         priceEntity.setEndDate(LocalDateTime.of(2020, 6, 14, 18, 30));
         priceEntity.setPriority(1);
         priceEntity.setPrice(new BigDecimal("25.45"));
-        priceEntity.setCurr("EUR");
+        priceEntity.setCurrency("EUR");
 
-        when(jpaPriceRepository.findPriceByDateProductAndBrand(
-                eq(productId), eq(brandId), eq(date), eq(PageRequest.of(0, 1))))
-            .thenReturn(List.of(priceEntity));
+        when(jpaPriceRepository.findFirstByProduct_IdAndBrand_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByPriorityDesc(
+                eq(productId), eq(brandId), eq(date), eq(date)
+        )).thenReturn(Optional.of(priceEntity));
 
-        // Ejecutar
+        // Act
         Optional<com.inditex.pricing.domain.model.Price> result =
                 adapter.findPrice(date, productId, brandId);
 
-        // Verificar
+        // Assert
         assertThat(result).isPresent();
         assertThat(result.get().price()).isEqualByComparingTo("25.45");
         assertThat(result.get().brand().id()).isEqualTo(1);
