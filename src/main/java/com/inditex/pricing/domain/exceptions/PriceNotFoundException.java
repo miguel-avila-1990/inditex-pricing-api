@@ -1,6 +1,6 @@
 package com.inditex.pricing.domain.exceptions;
 
-public class PriceNotFoundException extends RuntimeException {
+public class PriceNotFoundException extends DomainException {
     private static final long serialVersionUID = 1L;
 
     public PriceNotFoundException(String message) {

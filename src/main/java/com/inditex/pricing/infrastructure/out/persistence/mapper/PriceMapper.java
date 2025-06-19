@@ -23,7 +23,7 @@ public class PriceMapper {
             entity.getEndDate(),
             entity.getPriority(),
             entity.getPrice(),
-            entity.getCurr()
+            entity.getCurrency()
         );
     }
 
@@ -42,7 +42,7 @@ public class PriceMapper {
         entity.setEndDate(price.endDate());
         entity.setPriority(price.priority());
         entity.setPrice(price.price());
-        entity.setCurr(price.currency());
+        entity.setCurrency(price.currency());
         return entity;
     }
 }

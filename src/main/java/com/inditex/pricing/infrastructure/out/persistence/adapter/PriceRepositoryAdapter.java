@@ -1,14 +1,14 @@
-package com.inditex.pricing.infrastructure.out.persistence.repository;
+package com.inditex.pricing.infrastructure.out.persistence.adapter;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.inditex.pricing.domain.model.Price;
 import com.inditex.pricing.domain.ports.out.PriceRepositoryPort;
 import com.inditex.pricing.infrastructure.out.persistence.mapper.PriceMapper;
+import com.inditex.pricing.infrastructure.out.persistence.repository.JpaPriceRepository;
 
 /**
  * Adaptador de salida que implementa el puerto {@link PriceRepositoryPort}.
@@ -39,9 +39,13 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
     @Override
     public Optional<Price> findPrice(LocalDateTime applicationDate, Integer productId, Integer brandId) {
         return jpaPriceRepository
-        		.findPriceByDateProductAndBrand(productId, brandId, applicationDate, PageRequest.of(0, 1))                
-                .stream()
-                .findFirst()
+                .findFirstByProduct_IdAndBrand_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByPriorityDesc(
+                    productId,
+                    brandId,
+                    applicationDate,
+                    applicationDate
+                )
                 .map(PriceMapper::toDomain);
     }
+
 }

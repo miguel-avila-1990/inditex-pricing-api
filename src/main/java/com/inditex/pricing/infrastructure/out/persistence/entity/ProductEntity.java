@@ -9,7 +9,13 @@ import lombok.Setter;
  * Entidad JPA que representa un producto comercial.
  */
 @Entity
-@Table(name = "products")
+@Table(
+	    name = "products",
+	    indexes = {
+	        @Index(name = "idx_products_name", columnList = "name"),
+	        @Index(name = "idx_products_category", columnList = "category")
+	    }
+	)
 @Getter
 @Setter
 @NoArgsConstructor

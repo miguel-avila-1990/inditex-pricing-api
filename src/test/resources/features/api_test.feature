@@ -43,4 +43,4 @@ Feature: Testing API endpoint /prices
   Scenario: Realizar una petición con algún parámetro inválido.
     Given I send a GET request to "/prices?consultationDate=2025-06-16T21:00:00&productId=35455&brandId=-1"
     Then the response status should be 400
-    And the response body should contain "INVALID_PARAMETER"
+    And the response body should contain "INVALID_INPUT"

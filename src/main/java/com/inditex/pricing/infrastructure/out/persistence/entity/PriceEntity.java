@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
  * Entidad JPA que representa una tarifa de precio para un producto en una marca.
  */
 @Entity
-@Table(name = "prices")
+@Table(
+	    name = "prices",
+	    indexes = {@Index(name = "idx_prices_lookup", columnList = "product_id, brand_id, start_date, end_date, priority")}
+	  )
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,5 +47,5 @@ public class PriceEntity {
     private BigDecimal price;
 
     @Column(name = "curr")
-    private String curr;
+    private String currency;
 }

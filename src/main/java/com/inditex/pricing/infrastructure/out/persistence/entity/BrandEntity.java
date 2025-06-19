@@ -9,7 +9,12 @@ import lombok.Setter;
  * Entidad JPA que representa una marca del grupo.
  */
 @Entity
-@Table(name = "brands")
+@Table(
+	    name = "brands",
+	    indexes = {
+	        @Index(name = "idx_brands_name", columnList = "name")
+	    }
+	)
 @Getter
 @Setter
 @NoArgsConstructor
