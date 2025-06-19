@@ -1,6 +1,7 @@
 package com.inditex.pricing.application.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -18,7 +19,7 @@ import com.inditex.pricing.domain.model.Price;
 import com.inditex.pricing.domain.model.Product;
 import com.inditex.pricing.domain.ports.out.PriceRepositoryPort;
 
-public class GetApplicablePriceUseCaseImplTest {
+class GetApplicablePriceUseCaseImplTest {
 
     private PriceRepositoryPort priceRepository;
     private GetApplicablePriceUseCaseImpl useCase;
@@ -48,7 +49,7 @@ public class GetApplicablePriceUseCaseImplTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenNoPriceFound() {
+    void shouldThrowPriceNotFoundExceptionWhenNoPriceFound() {
         LocalDateTime date = LocalDateTime.now();
         when(priceRepository.findPrice(date, 35455, 1)).thenReturn(Optional.empty());
 
@@ -58,13 +59,19 @@ public class GetApplicablePriceUseCaseImplTest {
 
     @Test
     void shouldThrowInvalidInputExceptionWhenParamsAreNull() {
-        assertThrows(InvalidInputException.class, () ->
-                useCase.getApplicablePrice(null, 35455, 1));
+        assertAll(
+            () -> assertThrows(InvalidInputException.class, () -> useCase.getApplicablePrice(null, 35455, 1)),
+            () -> assertThrows(InvalidInputException.class, () -> useCase.getApplicablePrice(LocalDateTime.now(), null, 1)),
+            () -> assertThrows(InvalidInputException.class, () -> useCase.getApplicablePrice(LocalDateTime.now(), 35455, null))
+        );
+    }
 
-        assertThrows(InvalidInputException.class, () ->
-                useCase.getApplicablePrice(LocalDateTime.now(), null, 1));
+    @Test
+    void shouldPropagateUnexpectedExceptionFromRepository() {
+        LocalDateTime date = LocalDateTime.now();
+        when(priceRepository.findPrice(date, 35455, 1)).thenThrow(new RuntimeException("Database down"));
 
-        assertThrows(InvalidInputException.class, () ->
-                useCase.getApplicablePrice(LocalDateTime.now(), 35455, null));
+        assertThrows(RuntimeException.class, () ->
+                useCase.getApplicablePrice(date, 35455, 1));
     }
 }
