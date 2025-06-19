@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Clase principal que arranca la aplicación Spring Boot para la API de precios de Inditex.
  */
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.inditex.pricing")
 public class PricingApplication {
 
 	public static void main(String[] args) {
